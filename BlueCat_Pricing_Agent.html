@@ -1,0 +1,1007 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BlueCat Pricing Agent</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: #F0F2F5;
+    color: #1F3864;
+    min-height: 100vh;
+  }
+
+  /* ── HEADER ── */
+  header {
+    background: #0F2340;
+    padding: 14px 32px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    border-bottom: 3px solid #006B6E;
+  }
+  header .logo {
+    font-size: 18px;
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: 0.5px;
+  }
+  header .logo span { color: #41C0CC; }
+  header .sub {
+    font-size: 11px;
+    color: #7B9CC2;
+    margin-top: 2px;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+  }
+
+  /* ── LAYOUT ── */
+  .container {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 24px 24px;
+    display: grid;
+    grid-template-columns: 420px 1fr;
+    gap: 24px;
+    align-items: start;
+  }
+
+  /* ── CARD ── */
+  .card {
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    overflow: hidden;
+  }
+  .card-header {
+    background: #1F3864;
+    color: #fff;
+    padding: 12px 18px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .card-header .dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: #41C0CC;
+    flex-shrink: 0;
+  }
+  .card-body { padding: 18px; }
+
+  /* ── FORM ── */
+  .form-section {
+    margin-bottom: 18px;
+    padding-bottom: 18px;
+    border-bottom: 1px solid #EEF0F3;
+  }
+  .form-section:last-child { border-bottom: none; margin-bottom: 0; }
+  .section-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: #0099A8;
+    margin-bottom: 10px;
+  }
+  .row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .row.trio { grid-template-columns: 1fr 1fr 1fr; }
+  .field { display: flex; flex-direction: column; gap: 4px; }
+  .field label {
+    font-size: 11px;
+    font-weight: 600;
+    color: #444;
+  }
+  .field input, .field select {
+    padding: 8px 10px;
+    border: 1.5px solid #D8DCE6;
+    border-radius: 5px;
+    font-size: 13px;
+    color: #1F3864;
+    background: #FAFBFC;
+    transition: border-color 0.15s;
+    outline: none;
+  }
+  .field input:focus, .field select:focus { border-color: #006B6E; background: #fff; }
+  .field .hint { font-size: 10px; color: #999; }
+
+  /* toggles */
+  .toggle-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+  .toggle-row label { font-size: 12px; font-weight: 600; color: #333; cursor: pointer; }
+  .toggle {
+    position: relative; width: 36px; height: 20px; cursor: pointer;
+  }
+  .toggle input { display: none; }
+  .toggle .slider {
+    position: absolute; inset: 0;
+    background: #D0D5DD; border-radius: 20px;
+    transition: background 0.2s;
+  }
+  .toggle .slider::after {
+    content: ''; position: absolute;
+    width: 14px; height: 14px; border-radius: 50%;
+    background: #fff; top: 3px; left: 3px;
+    transition: transform 0.2s;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+  }
+  .toggle input:checked + .slider { background: #006B6E; }
+  .toggle input:checked + .slider::after { transform: translateX(16px); }
+
+  .sub-fields {
+    padding: 10px;
+    background: #F4F8F8;
+    border-radius: 6px;
+    border: 1px solid #D0EAEA;
+    margin-top: 4px;
+    display: none;
+  }
+  .sub-fields.active { display: block; }
+
+  /* ── SCENARIOS ── */
+  .scenarios {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 14px;
+  }
+  .scenario-btn {
+    padding: 5px 12px;
+    border: 1.5px solid #B0C4D8;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+    color: #1F3864;
+    background: #fff;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .scenario-btn:hover { border-color: #006B6E; color: #006B6E; background: #F0F8F8; }
+
+  /* ── CTA ── */
+  .run-btn {
+    width: 100%;
+    padding: 13px;
+    background: #006B6E;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    letter-spacing: 0.5px;
+    transition: background 0.15s;
+    margin-top: 4px;
+  }
+  .run-btn:hover { background: #005558; }
+
+  /* ── OUTPUT PANEL ── */
+  #output-panel .card-body { padding: 0; }
+
+  .empty-state {
+    padding: 60px 32px;
+    text-align: center;
+    color: #AABBCC;
+  }
+  .empty-state .icon { font-size: 48px; margin-bottom: 12px; }
+  .empty-state p { font-size: 14px; }
+
+  /* result sections */
+  .result-section { border-bottom: 1px solid #EEF0F3; }
+  .result-section:last-child { border-bottom: none; }
+  .result-header {
+    padding: 10px 18px;
+    background: #F4F6F9;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: #0099A8;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    user-select: none;
+  }
+  .result-header:hover { background: #EBF0F5; }
+  .result-body { padding: 14px 18px; display: block; }
+  .result-body.collapsed { display: none; }
+
+  /* line items */
+  .line-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 7px 0;
+    border-bottom: 1px dashed #EEF0F3;
+    gap: 8px;
+  }
+  .line-item:last-child { border-bottom: none; }
+  .li-name { font-size: 13px; color: #2C3E50; font-weight: 500; flex: 1; }
+  .li-detail { font-size: 11px; color: #888; margin-top: 2px; }
+  .li-disc { font-size: 11px; color: #C0392B; }
+  .li-right { text-align: right; flex-shrink: 0; }
+  .li-acv { font-size: 14px; font-weight: 700; color: #1F3864; }
+  .li-net { font-size: 12px; color: #006B6E; }
+
+  /* totals bar */
+  .totals-bar {
+    background: #1F3864;
+    color: #fff;
+    padding: 12px 18px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 0 -18px -14px;
+    border-radius: 0 0 0 0;
+  }
+  .totals-bar .t-label { font-size: 11px; color: #9BB8D4; }
+  .totals-bar .t-val { font-size: 18px; font-weight: 700; }
+  .totals-bar .t-net { font-size: 12px; color: #41C0CC; margin-top: 2px; }
+
+  /* pill badges */
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 9px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+  }
+  .badge-teal  { background: #E0F4F4; color: #006B6E; }
+  .badge-navy  { background: #E0E8F4; color: #1F3864; }
+  .badge-green { background: #E8F5E9; color: #2E7D32; }
+  .badge-red   { background: #FDECEA; color: #C0392B; }
+  .badge-amber { background: #FFF8E1; color: #F39C12; }
+
+  /* flags */
+  .flag {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 7px 10px;
+    border-radius: 5px;
+    margin-bottom: 6px;
+    font-size: 12px;
+  }
+  .flag:last-child { margin-bottom: 0; }
+  .flag-warn { background: #FFF8E1; color: #7A5800; border-left: 3px solid #F39C12; }
+  .flag-info { background: #E0F4F4; color: #004D50; border-left: 3px solid #006B6E; }
+  .flag-ok   { background: #E8F5E9; color: #1B5E20; border-left: 3px solid #2E7D32; }
+  .flag-err  { background: #FDECEA; color: #7F1D1D; border-left: 3px solid #C0392B; }
+
+  /* nrr bar */
+  .nrr-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+  }
+  .nrr-label { font-size: 12px; font-weight: 600; color: #555; width: 80px; flex-shrink: 0; }
+  .nrr-track {
+    flex: 1; height: 16px; background: #EEF0F3;
+    border-radius: 8px; overflow: hidden;
+  }
+  .nrr-fill { height: 100%; border-radius: 8px; transition: width 0.6s ease; }
+  .nrr-val { font-size: 12px; font-weight: 700; width: 90px; text-align: right; flex-shrink: 0; }
+
+  /* ELA schedule */
+  .ela-year {
+    display: flex;
+    justify-content: space-between;
+    padding: 7px 10px;
+    border-radius: 5px;
+    margin-bottom: 4px;
+    font-size: 13px;
+    background: #F4F8F8;
+  }
+  .ela-year .yr-label { color: #555; font-weight: 600; }
+  .ela-year .yr-val   { color: #1F3864; font-weight: 700; }
+  .ela-tcv {
+    display: flex;
+    justify-content: space-between;
+    padding: 9px 10px;
+    border-radius: 5px;
+    font-size: 14px;
+    font-weight: 700;
+    background: #1F3864;
+    color: #fff;
+    margin-top: 6px;
+  }
+  .ela-tcv .tcv-label { color: #9BB8D4; }
+
+  /* credit rule */
+  .credit-rule {
+    padding: 10px 12px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 10px;
+  }
+  .ramp-row {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    font-size: 12px;
+    margin-bottom: 5px;
+    color: #444;
+  }
+  .ramp-row .ramp-yr {
+    background: #006B6E; color: #fff;
+    border-radius: 4px; padding: 2px 7px;
+    font-size: 10px; font-weight: 700;
+    flex-shrink: 0;
+  }
+  .ramp-row .ramp-pct { font-weight: 700; color: #006B6E; flex-shrink: 0; }
+
+  /* bridge */
+  .bridge-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 6px 0;
+    font-size: 13px;
+    border-bottom: 1px dashed #EEF0F3;
+  }
+  .bridge-row:last-child { border-bottom: none; }
+  .bridge-row.total {
+    border-top: 2px solid #1F3864;
+    border-bottom: none;
+    margin-top: 4px;
+    padding-top: 8px;
+    font-weight: 700;
+    font-size: 14px;
+    color: #1F3864;
+  }
+  .br-label { color: #555; }
+  .br-val { font-weight: 600; }
+  .br-pos { color: #2E7D32; }
+  .br-neg { color: #C0392B; }
+
+  /* summary hero */
+  .summary-hero {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    background: #EEF0F3;
+    border-bottom: 1px solid #EEF0F3;
+  }
+  .hero-stat {
+    background: #fff;
+    padding: 16px;
+    text-align: center;
+  }
+  .hero-stat .hs-val {
+    font-size: 22px; font-weight: 700;
+    color: #1F3864;
+  }
+  .hero-stat .hs-val.teal  { color: #006B6E; }
+  .hero-stat .hs-val.green { color: #2E7D32; }
+  .hero-stat .hs-label {
+    font-size: 10px; color: #888;
+    margin-top: 3px; text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <div class="logo">Blue<span>Cat</span> Networks</div>
+    <div class="sub">Pricing Agent — Bundling &amp; Packaging Framework</div>
+  </div>
+</header>
+
+<div class="container">
+
+  <!-- ── LEFT: INPUT FORM ── -->
+  <div>
+    <div class="card" style="margin-bottom:14px;">
+      <div class="card-header"><div class="dot"></div>Load Sample Scenario</div>
+      <div class="card-body">
+        <div class="scenarios">
+          <button class="scenario-btn" onclick="loadScenario('healthcare')">🏥 Healthcare Migration</button>
+          <button class="scenario-btn" onclick="loadScenario('fsi')">🏦 FSI ELA</button>
+          <button class="scenario-btn" onclick="loadScenario('smb')">📦 SMB Horizon Only</button>
+        </div>
+        <p style="font-size:11px;color:#999;">Or fill in the form below manually.</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header"><div class="dot"></div>Deal Configuration</div>
+      <div class="card-body">
+
+        <!-- Customer -->
+        <div class="form-section">
+          <div class="section-label">Customer</div>
+          <div class="row">
+            <div class="field">
+              <label>Customer Name</label>
+              <input id="customer" type="text" placeholder="e.g. Northwell Health">
+            </div>
+            <div class="field">
+              <label>Vertical</label>
+              <select id="vertical">
+                <option value="">— Select —</option>
+                <option>Healthcare</option>
+                <option>Financial Services</option>
+                <option>Government / Federal</option>
+                <option>Retail</option>
+                <option>Technology</option>
+                <option>Manufacturing</option>
+                <option>Education</option>
+                <option>Other</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Horizon -->
+        <div class="form-section">
+          <div class="section-label">Horizon DDI</div>
+          <div class="row">
+            <div class="field">
+              <label>Tier</label>
+              <select id="h-tier">
+                <option value="">— None —</option>
+                <option>Standard</option>
+                <option>Advanced</option>
+                <option>Enterprise</option>
+                <option>ELA</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>Node Count</label>
+              <input id="h-nodes" type="number" placeholder="e.g. 750" min="1">
+              <span class="hint">Managed DNS/DHCP nodes</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- LiveAction -->
+        <div class="form-section">
+          <div class="section-label">LiveAction (Network Observability)</div>
+          <div class="toggle-row">
+            <label class="toggle">
+              <input type="checkbox" id="la-toggle" onchange="toggleProduct('la')">
+              <span class="slider"></span>
+            </label>
+            <label for="la-toggle">Include LiveAction</label>
+          </div>
+          <div class="sub-fields" id="la-fields">
+            <div class="row" style="margin-top:0;">
+              <div class="field">
+                <label>Tier</label>
+                <select id="la-tier">
+                  <option>Standard</option>
+                  <option>Advanced</option>
+                  <option>Enterprise</option>
+                  <option>ELA</option>
+                </select>
+              </div>
+              <div class="field">
+                <label>Device Count</label>
+                <input id="la-devices" type="number" placeholder="e.g. 2000" min="1">
+                <span class="hint">Monitored network devices</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- LiveAssist AI -->
+        <div class="form-section">
+          <div class="section-label">LiveAssist AI (Usage-based)</div>
+          <div class="toggle-row">
+            <label class="toggle">
+              <input type="checkbox" id="ai-toggle" onchange="toggleProduct('ai')">
+              <span class="slider"></span>
+            </label>
+            <label for="ai-toggle">Include LiveAssist AI</label>
+          </div>
+          <div class="sub-fields" id="ai-fields">
+            <div class="field">
+              <label>Tier</label>
+              <select id="ai-tier">
+                <option>Pilot</option>
+                <option>Starter</option>
+                <option>Professional</option>
+                <option>Enterprise</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Migration -->
+        <div class="form-section">
+          <div class="section-label">Integrity Migration</div>
+          <div class="toggle-row">
+            <label class="toggle">
+              <input type="checkbox" id="int-toggle" onchange="toggleProduct('int')">
+              <span class="slider"></span>
+            </label>
+            <label for="int-toggle">Customer has existing Integrity contract</label>
+          </div>
+          <div class="sub-fields" id="int-fields">
+            <div class="row">
+              <div class="field">
+                <label>Current Integrity ACV ($)</label>
+                <input id="int-acv" type="number" placeholder="e.g. 95000" min="0">
+              </div>
+              <div class="field">
+                <label>Months Remaining</label>
+                <input id="int-months" type="number" placeholder="e.g. 14" min="0" max="60">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Discount & ARR -->
+        <div class="form-section">
+          <div class="section-label">Discount &amp; ARR</div>
+          <div class="row">
+            <div class="field">
+              <label>Requested Discount (%)</label>
+              <input id="disc" type="number" placeholder="e.g. 18" min="0" max="60">
+            </div>
+            <div class="field">
+              <label>Customer Opening ARR ($)</label>
+              <input id="arr" type="number" placeholder="e.g. 95000" min="0">
+              <span class="hint">Current total ARR before this deal</span>
+            </div>
+          </div>
+        </div>
+
+        <button class="run-btn" onclick="runAgent()">▶ Generate Deal Recommendation</button>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ── RIGHT: OUTPUT PANEL ── -->
+  <div id="output-panel">
+    <div class="card">
+      <div class="card-header"><div class="dot"></div>Deal Recommendation</div>
+      <div class="card-body">
+        <div class="empty-state" id="empty-state">
+          <div class="icon">💼</div>
+          <p>Configure a deal and click<br><strong>Generate Deal Recommendation</strong></p>
+        </div>
+        <div id="result" style="display:none;"></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ══════════════════════════════════════════════════════════
+// CATALOG
+// ══════════════════════════════════════════════════════════
+const HORIZON = {
+  Standard:   { nodePrice: 220, label: 'Horizon Standard' },
+  Advanced:   { nodePrice: 185, label: 'Horizon Advanced' },
+  Enterprise: { nodePrice: 155, label: 'Horizon Enterprise' },
+  ELA:        { nodePrice: 125, label: 'Horizon ELA (3-yr)' },
+};
+const LIVEACTION = {
+  Standard:   { devicePrice: 180, label: 'LiveAction Standard' },
+  Advanced:   { devicePrice: 155, label: 'LiveAction Advanced' },
+  Enterprise: { devicePrice: 130, label: 'LiveAction Enterprise' },
+  ELA:        { devicePrice: 105, label: 'LiveAction ELA (3-yr)' },
+};
+const LIVEASSIST = {
+  Pilot:        { monthly: 1000,  queries: 'Up to 3K/mo',  label: 'LiveAssist AI Pilot' },
+  Starter:      { monthly: 2000,  queries: '5K/mo',        label: 'LiveAssist AI Starter' },
+  Professional: { monthly: 5000,  queries: '25K/mo',       label: 'LiveAssist AI Professional' },
+  Enterprise:   { monthly: 10000, queries: '100K/mo',      label: 'LiveAssist AI Enterprise' },
+};
+const CREDIT_LADDER = [
+  { minMo: 13, maxMo: 999, pct: 0.30, label: '>12 months remaining → 30% credit', color: '#2E7D32' },
+  { minMo:  7, maxMo:  12, pct: 0.20, label: '6–12 months remaining → 20% credit', color: '#F39C12' },
+  { minMo:  0, maxMo:   6, pct: 0.00, label: '<6 months remaining → 0% (offer PS bundle at 15% off)', color: '#C0392B' },
+];
+const BUNDLES = [
+  { name: 'Horizon Adv + LiveAction Adv',   products: ['Horizon','LiveAction'],            tiers: ['Advanced','Advanced'],              disc: 0.15, appliesTo: 'LiveAction', auth: 'AE' },
+  { name: 'Horizon Std + LiveAction Std',   products: ['Horizon','LiveAction'],            tiers: ['Standard','Standard'],              disc: 0.10, appliesTo: 'LiveAction', auth: 'AE' },
+  { name: 'Enterprise 3-Product Bundle',    products: ['Horizon','LiveAction','LiveAssist'],tiers: ['Enterprise','Enterprise','Professional'], disc: 0.20, appliesTo: 'LiveAction', auth: 'Deal Desk' },
+  { name: 'Full ELA (3-yr, all products)',  products: ['Horizon','LiveAction','LiveAssist'],tiers: ['ELA','ELA','Enterprise'],           disc: 0.30, appliesTo: 'All',        auth: 'VP + Finance' },
+];
+const GOVERNANCE = [
+  { maxPct: 0.15, auth: 'Account Executive',    sla: 'Instant' },
+  { maxPct: 0.25, auth: 'Regional VP Sales',    sla: '24 hrs' },
+  { maxPct: 0.35, auth: 'VP Sales + Deal Desk', sla: '48 hrs' },
+  { maxPct: 1.00, auth: 'CRO + Finance',        sla: '72 hrs' },
+];
+const HIGH_RISK = ['healthcare','financial services','government / federal','government','federal'];
+const ELA_MIN_ACV = 150000, ELA_MIN_NODES = 500, ELA_ESC = 0.04;
+
+// ══════════════════════════════════════════════════════════
+// SCENARIOS
+// ══════════════════════════════════════════════════════════
+const SCENARIOS = {
+  healthcare: {
+    customer:'Northwell Health', vertical:'Healthcare',
+    hTier:'Advanced', hNodes:750,
+    la:true, laTier:'Advanced', laDevices:2000,
+    ai:true, aiTier:'Starter',
+    int:true, intAcv:95000, intMonths:14,
+    disc:18, arr:95000
+  },
+  fsi: {
+    customer:'TD Bank', vertical:'Financial Services',
+    hTier:'ELA', hNodes:1200,
+    la:true, laTier:'ELA', laDevices:8000,
+    ai:true, aiTier:'Enterprise',
+    int:true, intAcv:220000, intMonths:9,
+    disc:28, arr:220000
+  },
+  smb: {
+    customer:'Apex Logistics', vertical:'Retail',
+    hTier:'Standard', hNodes:300,
+    la:false, ai:false,
+    int:true, intAcv:40000, intMonths:4,
+    disc:12, arr:40000
+  }
+};
+
+function loadScenario(key) {
+  const s = SCENARIOS[key];
+  document.getElementById('customer').value = s.customer;
+  document.getElementById('vertical').value = s.vertical;
+  document.getElementById('h-tier').value = s.hTier;
+  document.getElementById('h-nodes').value = s.hNodes;
+  // LiveAction
+  document.getElementById('la-toggle').checked = !!s.la;
+  toggleProduct('la');
+  if (s.la) {
+    document.getElementById('la-tier').value = s.laTier;
+    document.getElementById('la-devices').value = s.laDevices;
+  }
+  // LiveAssist
+  document.getElementById('ai-toggle').checked = !!s.ai;
+  toggleProduct('ai');
+  if (s.ai) document.getElementById('ai-tier').value = s.aiTier;
+  // Integrity
+  document.getElementById('int-toggle').checked = !!s.int;
+  toggleProduct('int');
+  if (s.int) {
+    document.getElementById('int-acv').value = s.intAcv;
+    document.getElementById('int-months').value = s.intMonths;
+  }
+  document.getElementById('disc').value = s.disc;
+  document.getElementById('arr').value = s.arr;
+}
+
+function toggleProduct(id) {
+  const on = document.getElementById(id+'-toggle').checked;
+  const el = document.getElementById(id+'-fields');
+  el.classList.toggle('active', on);
+}
+
+// ══════════════════════════════════════════════════════════
+// ENGINES
+// ══════════════════════════════════════════════════════════
+function calcBase(products) {
+  const items = [];
+  let total = 0;
+  if (products.Horizon) {
+    const t = HORIZON[products.Horizon.tier];
+    const acv = t.nodePrice * products.Horizon.nodes;
+    items.push({ product: t.label, metric: `${products.Horizon.nodes} nodes × $${t.nodePrice}/node/yr`, acv, discount: 0, netAcv: acv });
+    total += acv;
+  }
+  if (products.LiveAction) {
+    const t = LIVEACTION[products.LiveAction.tier];
+    const acv = t.devicePrice * products.LiveAction.devices;
+    items.push({ product: t.label, metric: `${products.LiveAction.devices} devices × $${t.devicePrice}/device/yr`, acv, discount: 0, netAcv: acv });
+    total += acv;
+  }
+  if (products.LiveAssist) {
+    const t = LIVEASSIST[products.LiveAssist.tier];
+    const acv = t.monthly * 12;
+    items.push({ product: t.label, metric: `$${t.monthly.toLocaleString()}/mo × 12  (${t.queries})`, acv, discount: 0, netAcv: acv });
+    total += acv;
+  }
+  return { items, totalAcv: total };
+}
+
+function matchBundle(products) {
+  const keys = Object.keys(products);
+  let best = null;
+  for (const b of BUNDLES) {
+    if (!b.products.every(p => keys.includes(p))) continue;
+    const tierMatch = b.products.every((p,i) => products[p]?.tier === b.tiers[i]);
+    if (tierMatch && (!best || b.disc > best.disc)) best = b;
+  }
+  return best;
+}
+
+function applyBundle(base, bundle) {
+  if (!bundle) return { ...base, bundle: null, discountAmount: 0, netAcv: base.totalAcv };
+  let discAmt = 0;
+  const items = base.items.map(item => {
+    const applies = bundle.appliesTo === 'All' || item.product.includes(bundle.appliesTo);
+    const disc = applies ? Math.round(item.acv * bundle.disc * 100) / 100 : 0;
+    discAmt += disc;
+    return { ...item, discount: disc, netAcv: item.acv - disc };
+  });
+  return { items, totalAcv: base.totalAcv, bundle: bundle.name, bundleAuth: bundle.auth, discountAmount: discAmt, netAcv: base.totalAcv - discAmt };
+}
+
+function calcCredit(intAcv, months) {
+  const rule = CREDIT_LADDER.find(r => months >= r.minMo && months <= r.maxMo) || CREDIT_LADDER[2];
+  const amount = intAcv * rule.pct;
+  const hasRamp = months > 6;
+  return { rule, amount, hasRamp };
+}
+
+function govCheck(netAcv, discPct, vertical, productCount) {
+  const approver = GOVERNANCE.find(g => discPct <= g.maxPct) || GOVERNANCE[GOVERNANCE.length-1];
+  const flags = [];
+  if (netAcv > 250000)      flags.push({ type:'warn', msg: 'ACV > $250,000 → Deal Desk required' });
+  if (discPct > 0.25)       flags.push({ type:'warn', msg: `Discount ${(discPct*100).toFixed(0)}% > 25% → Regional VP minimum` });
+  if (HIGH_RISK.includes(vertical.toLowerCase())) flags.push({ type:'warn', msg: `${vertical} vertical → Deal Desk review required` });
+  if (productCount >= 3)    flags.push({ type:'info', msg: '3+ products → Deal Desk review required' });
+  return { approver, flags, dealDesk: flags.length > 0 };
+}
+
+function elaCheck(netAcv, nodes) {
+  const eligible = netAcv >= ELA_MIN_ACV && nodes >= ELA_MIN_NODES;
+  const schedule = [];
+  if (eligible) {
+    for (let yr = 1; yr <= 3; yr++)
+      schedule.push({ year: yr, acv: Math.round(netAcv * Math.pow(1 + ELA_ESC, yr - 1)) });
+  }
+  const tcv = schedule.reduce((s,r) => s + r.acv, 0);
+  let reason = '';
+  if (!eligible) reason = netAcv < ELA_MIN_ACV ? `ACV $${netAcv.toLocaleString()} < $150,000 minimum` : `Node count ${nodes} < 500 minimum`;
+  return { eligible, schedule, tcv, reason };
+}
+
+function nrrBridge(openArr, horizonNet, intAcv, crossSell, upsell) {
+  const migUplift = Math.max(horizonNet - intAcv, 0);
+  const closingArr = openArr + migUplift + crossSell + upsell;
+  const nrr = openArr > 0 ? ((closingArr / openArr) * 100).toFixed(1) : 0;
+  return { openArr, migUplift, crossSell, upsell, closingArr, nrr };
+}
+
+// ══════════════════════════════════════════════════════════
+// RUN
+// ══════════════════════════════════════════════════════════
+function runAgent() {
+  // collect inputs
+  const customer   = document.getElementById('customer').value || 'Unknown';
+  const vertical   = document.getElementById('vertical').value || '';
+  const hTier      = document.getElementById('h-tier').value;
+  const hNodes     = parseInt(document.getElementById('h-nodes').value) || 0;
+  const laOn       = document.getElementById('la-toggle').checked;
+  const laTier     = document.getElementById('la-tier').value;
+  const laDevices  = parseInt(document.getElementById('la-devices').value) || 0;
+  const aiOn       = document.getElementById('ai-toggle').checked;
+  const aiTier     = document.getElementById('ai-tier').value;
+  const intOn      = document.getElementById('int-toggle').checked;
+  const intAcv     = parseFloat(document.getElementById('int-acv').value) || 0;
+  const intMonths  = parseInt(document.getElementById('int-months').value) || 0;
+  const discPct    = (parseFloat(document.getElementById('disc').value) || 0) / 100;
+  const openArr    = parseFloat(document.getElementById('arr').value) || 0;
+
+  if (!hTier) { alert('Please select a Horizon tier.'); return; }
+  if (!hNodes){ alert('Please enter node count.'); return; }
+
+  const products = {};
+  products.Horizon = { tier: hTier, nodes: hNodes };
+  if (laOn && laDevices) products.LiveAction = { tier: laTier, devices: laDevices };
+  if (aiOn) products.LiveAssist = { tier: aiTier };
+
+  // run engines
+  const base    = calcBase(products);
+  const bundle  = matchBundle(products);
+  const priced  = applyBundle(base, bundle);
+  const credit  = intOn ? calcCredit(intAcv, intMonths) : null;
+  const netAfterCredit = priced.netAcv - (credit ? credit.amount : 0);
+  const gov     = govCheck(netAfterCredit, discPct, vertical, Object.keys(products).length);
+  const ela     = elaCheck(netAfterCredit, hNodes);
+
+  const horizonNet = priced.items.find(i => i.product.includes('Horizon'))?.netAcv || 0;
+  const crossSell  = priced.items.find(i => i.product.includes('LiveAction'))?.netAcv || 0;
+  const upsell     = priced.items.find(i => i.product.includes('LiveAssist'))?.netAcv || 0;
+  const bridge = openArr > 0 ? nrrBridge(openArr, horizonNet, intAcv, crossSell, upsell) : null;
+
+  // render
+  renderResult({ customer, vertical, products, priced, credit, netAfterCredit, gov, ela, bridge, discPct });
+}
+
+// ══════════════════════════════════════════════════════════
+// RENDER
+// ══════════════════════════════════════════════════════════
+function fmt(n) { return '$' + Math.round(n).toLocaleString(); }
+function pct(n)  { return (n*100).toFixed(0) + '%'; }
+
+function renderResult(r) {
+  document.getElementById('empty-state').style.display = 'none';
+  const el = document.getElementById('result');
+  el.style.display = 'block';
+
+  const { priced, credit, netAfterCredit, gov, ela, bridge, discPct } = r;
+
+  let html = '';
+
+  // ── HERO STATS ──
+  const nrrVal = bridge ? bridge.nrr + '%' : '—';
+  html += `
+  <div class="summary-hero">
+    <div class="hero-stat">
+      <div class="hs-val teal">${fmt(priced.totalAcv)}</div>
+      <div class="hs-label">Gross ACV</div>
+    </div>
+    <div class="hero-stat">
+      <div class="hs-val">${fmt(netAfterCredit)}</div>
+      <div class="hs-label">Net ACV (after credits)</div>
+    </div>
+    <div class="hero-stat">
+      <div class="hs-val green">${nrrVal}</div>
+      <div class="hs-label">Account NRR</div>
+    </div>
+  </div>`;
+
+  // ── PRICING BREAKDOWN ──
+  html += section('💰 Pricing Breakdown', () => {
+    let s = '';
+    for (const item of priced.items) {
+      s += `<div class="line-item">
+        <div>
+          <div class="li-name">${item.product}</div>
+          <div class="li-detail">${item.metric}</div>
+          ${item.discount > 0 ? `<div class="li-disc">Bundle discount: −${fmt(item.discount)}</div>` : ''}
+        </div>
+        <div class="li-right">
+          <div class="li-acv">${fmt(item.acv)}</div>
+          ${item.discount > 0 ? `<div class="li-net">Net: ${fmt(item.netAcv)}</div>` : ''}
+        </div>
+      </div>`;
+    }
+    if (priced.bundle) {
+      s += `<div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;">
+        <span class="badge badge-teal">📦 ${priced.bundle}</span>
+        <span class="badge badge-navy">Authority: ${priced.bundleAuth}</span>
+        <span class="badge badge-red">Discount: −${fmt(priced.discountAmount)}</span>
+      </div>`;
+    }
+    s += `<div class="totals-bar">
+      <div><div class="t-label">Gross ACV</div><div class="t-val">${fmt(priced.totalAcv)}</div></div>
+      <div style="text-align:right"><div class="t-label">Net ACV</div><div class="t-val">${fmt(priced.netAcv)}</div></div>
+    </div>`;
+    return s;
+  });
+
+  // ── MIGRATION CREDIT ──
+  if (credit) {
+    html += section('🔄 Migration Credit (Integrity → Horizon)', () => {
+      const c = credit.rule.color;
+      let s = `<div class="credit-rule" style="background:${c}18;border-left:3px solid ${c};color:${c}">
+        ${credit.rule.label}
+      </div>`;
+      if (credit.amount > 0) {
+        s += `<div class="bridge-row">
+          <span class="br-label">Credit applied to Y1 invoice</span>
+          <span class="br-val br-neg">−${fmt(credit.amount)}</span>
+        </div>
+        <div class="bridge-row total">
+          <span>Net ACV after credit</span>
+          <span>${fmt(netAfterCredit)}</span>
+        </div>`;
+      }
+      if (credit.hasRamp) {
+        s += `<div style="margin-top:12px;margin-bottom:6px;" class="section-label">Ramp Alternative (compare TCV)</div>`;
+        const ramps = [
+          { yr:'Y1', pct:'70%', note:'70% of Horizon ACV — Integrity included' },
+          { yr:'Y2', pct:'85%', note:'85% of Horizon ACV — Integrity decommissioned' },
+          { yr:'Y3', pct:'104%', note:'100% + 4% escalator — Full SaaS' },
+        ];
+        for (const rp of ramps) {
+          s += `<div class="ramp-row"><span class="ramp-yr">${rp.yr}</span><span class="ramp-pct">${rp.pct}</span><span>${rp.note}</span></div>`;
+        }
+      }
+      return s;
+    });
+  }
+
+  // ── GOVERNANCE ──
+  html += section('🔒 Discount Governance', () => {
+    let s = `<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;">
+      <span class="badge badge-navy">Requested: ${pct(discPct)}</span>
+      <span class="badge ${r.gov.dealDesk ? 'badge-amber' : 'badge-green'}">Approval: ${gov.approver.auth}</span>
+      <span class="badge badge-teal">SLA: ${gov.approver.sla}</span>
+    </div>`;
+    if (gov.flags.length > 0) {
+      for (const f of gov.flags) {
+        s += `<div class="flag flag-warn">⚑ ${f.msg}</div>`;
+      }
+    } else {
+      s += `<div class="flag flag-ok">✓ No Deal Desk triggers — AE can approve</div>`;
+    }
+    return s;
+  });
+
+  // ── ELA ──
+  html += section('📋 ELA Eligibility', () => {
+    if (!ela.eligible) {
+      return `<div class="flag flag-err">✗ Not eligible — ${ela.reason}</div>`;
+    }
+    let s = `<div class="flag flag-ok" style="margin-bottom:10px;">✓ ELA Eligible — 3-year schedule with 4% annual escalator</div>`;
+    for (const yr of ela.schedule) {
+      s += `<div class="ela-year"><span class="yr-label">Year ${yr.year}</span><span class="yr-val">${fmt(yr.acv)}</span></div>`;
+    }
+    s += `<div class="ela-tcv"><span class="tcv-label">Total Contract Value (TCV)</span><span>${fmt(ela.tcv)}</span></div>`;
+    return s;
+  });
+
+  // ── NRR BRIDGE ──
+  if (bridge) {
+    html += section('📈 Account-Level NRR Contribution', () => {
+      const rows = [
+        { label:'Opening ARR (Integrity ACV)', val: bridge.openArr, cls:'' },
+        { label:'Migration Uplift (Horizon − Integrity)', val: bridge.migUplift, cls:'br-pos', prefix:'+' },
+        { label:'Cross-sell (LiveAction)', val: bridge.crossSell, cls:'br-pos', prefix:'+' },
+        { label:'Upsell (LiveAssist AI)', val: bridge.upsell, cls:'br-pos', prefix:'+' },
+      ];
+      let s = '';
+      for (const row of rows) {
+        s += `<div class="bridge-row">
+          <span class="br-label">${row.label}</span>
+          <span class="br-val ${row.cls}">${row.prefix||''}${fmt(row.val)}</span>
+        </div>`;
+      }
+      s += `<div class="bridge-row total">
+        <span>Closing ARR</span>
+        <span>${fmt(bridge.closingArr)}</span>
+      </div>`;
+      // NRR bar
+      const nrrNum = parseFloat(bridge.nrr);
+      const barPct = Math.min(nrrNum / 200 * 100, 100);
+      const barColor = nrrNum >= 150 ? '#2E7D32' : nrrNum >= 115 ? '#006B6E' : '#F39C12';
+      s += `<div class="nrr-row" style="margin-top:14px;">
+        <div class="nrr-label">Account NRR</div>
+        <div class="nrr-track"><div class="nrr-fill" style="width:${barPct}%;background:${barColor}"></div></div>
+        <div class="nrr-val" style="color:${barColor}">${bridge.nrr}%</div>
+      </div>
+      <p style="font-size:10px;color:#999;margin-top:4px;">Account-level expansion from this deal. Portfolio NRR factors in full customer book.</p>`;
+      return s;
+    });
+  }
+
+  el.innerHTML = html;
+}
+
+function section(title, contentFn) {
+  const id = 'sec-' + Math.random().toString(36).slice(2,7);
+  return `
+  <div class="result-section">
+    <div class="result-header" onclick="toggleSection('${id}')">
+      <span>${title}</span><span id="${id}-arrow">▾</span>
+    </div>
+    <div class="result-body" id="${id}">${contentFn()}</div>
+  </div>`;
+}
+function toggleSection(id) {
+  const el = document.getElementById(id);
+  const arrow = document.getElementById(id+'-arrow');
+  const collapsed = el.classList.toggle('collapsed');
+  arrow.textContent = collapsed ? '▸' : '▾';
+}
+</script>
+</body>
+</html>
